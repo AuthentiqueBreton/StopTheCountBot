@@ -21,6 +21,7 @@ Example:
 import logging
 import json
 from pathlib import Path
+import os
 
 LOGGER = logging.getLogger(__name__)
 
@@ -29,9 +30,9 @@ class TwitterXPATH:
     Class for Twitter div names (xpath) load and update.
     '''
     def __init__(self) -> None:
-        self.xpath_file = Path('xpath.json')
+        self.xpath_file = Path(os.path.dirname(os.path.abspath(__file__))) / 'xpath.json'
 
-    def read_json(self) -> dict:
+    def _read_json(self) -> dict:
         '''
         Read the xpath.json file and return its content.
 
@@ -41,7 +42,7 @@ class TwitterXPATH:
         with open(self.xpath_file, mode='r', encoding='UTF-8') as json_file:
             return json.load(json_file)
 
-    def write_json(self, new_xpath_content:dict) -> None:
+    def _write_json(self, new_xpath_content:dict) -> None:
         '''
         Modify the xpath.json file.
 
@@ -58,9 +59,9 @@ class TwitterXPATH:
         Args:
             new_xpath (str): new username xpath.
         '''
-        xpath_dict = self.read_json()
+        xpath_dict = self._read_json()
         xpath_dict['username_xpath'] = new_xpath
-        self.write_json(xpath_dict)
+        self._write_json(xpath_dict)
 
     def set_tweet_xpath(self, new_xpath:str) -> None:
         '''
@@ -69,9 +70,9 @@ class TwitterXPATH:
         Args:
             new_xpath (str): new tweet xpath.
         '''
-        xpath_dict = self.read_json()
+        xpath_dict = self._read_json()
         xpath_dict['tweet_xpath'] = new_xpath
-        self.write_json(xpath_dict)
+        self._write_json(xpath_dict)
 
     @property
     def username_xpath(self) -> str:
@@ -81,7 +82,7 @@ class TwitterXPATH:
         Returns:
             str: xpath identifier.
         '''
-        return self.read_json()['username_xpath']
+        return self._read_json()['username_xpath']
 
     @property
     def tweet_xpath(self) -> str:
@@ -91,4 +92,4 @@ class TwitterXPATH:
         Returns:
             str: xpath identifier
         '''
-        return self.read_json()['tweet_xpath']
+        return self._read_json()['tweet_xpath']
