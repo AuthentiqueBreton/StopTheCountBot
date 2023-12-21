@@ -22,12 +22,16 @@ Example:
 '''
 
 import logging
+import time
 
 import appdirs
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
+
+from stopthecount.twitter.xpath_loader import TwitterXPATH
+from stopthecount.twitter.tweet_object import Tweet
 
 LOGGER = logging.getLogger(__name__)
 CHROME = appdirs.user_data_dir(appname='Chrome', appauthor='Google')
@@ -39,32 +43,56 @@ class Downloader:
     def __init__(self, url) -> None:
         self.url = url
         self.tweets = {}
-        self._download()
+        self.content = self._download()
+
+    def _setup_driver(self) -> webdriver.Chrome:
+        '''
+        Return an instance of Selenium webdriver.
+
+        Returns:
+            webdriver.Chrome: an instancied driver with specific parameters.
+        '''
+        options = webdriver.ChromeOptions()
+        options.add_argument(f'--user-data-dir={CHROME}/User Data')
+        options.add_argument('--profile-directory=Default')
+        options.add_argument('--window-size=2560,1440')
+        return webdriver.Chrome(options=options)
 
     def _download(self):
         '''
         Download the tweets at specified url and put them in a dict that map
         the username with the tweet content.
         '''
-        options = webdriver.ChromeOptions()
-        options.add_argument(f'--user-data-dir={CHROME}/User Data')
-        options.add_argument('--profile-directory=Default')
-        options.add_argument('--window-size=2560,1440')
-        driver = webdriver.Chrome(options=options)
+        driver = self._setup_driver()
+        xpath = TwitterXPATH()
 
         driver.get(self.url)
         wait = WebDriverWait(driver, 10)
         last_height = driver.execute_script('return document.body.scrollHeight')
 
+        elements = []
         while True:
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-            wait.until(ec.presence_of_all_elements_located((By.XPATH, 'xpath')))
+            wait.until(ec.presence_of_all_elements_located((By.XPATH, xpath.tweet_xpath)))
+            time.sleep(2)
+
+            new_elements = driver.find_elements(By.XPATH, xpath.tweet_xpath)
+            for new_element in new_elements:
+                if new_element.text not in elements:
+                    elements.append(new_element.text)
+
             new_height = driver.execute_script('return document.body.scrollHeight')
             if new_height == last_height:
                 break
             last_height = new_height
+        
+        tweet_list = []
+        for tweet_str in elements:
+            tweet_list.append(Tweet(tweet_str))
 
         driver.quit()
+
+        return tweet_list
 
     def get_proposals_from_username(self):
         '''
