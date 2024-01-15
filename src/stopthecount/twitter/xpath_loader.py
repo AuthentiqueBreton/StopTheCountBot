@@ -12,10 +12,12 @@ Usage:
 
 Example:
     xpath_manager = TwitterXPATH()
-    username_xpath = xpath_manager.username_xpath
     tweet_xpath = xpath_manager.tweet_xpath
-    xpath_manager.username_xpath = '//div[@class="username_div-id"]'
+    username_xpath = xpath_manager.username_xpath
+    content_xpath = xpath_manager.content_xpath
     xpath_manager.tweet_xpath = '//div[@class="tweet_div-id"]'
+    xpath_manager.username_xpath = '//div[@class="username_div-id"]'
+    xpath_manager.content_xpath = '//div[@class="content_div-id"]'
 '''
 
 import logging
@@ -53,6 +55,16 @@ class TwitterXPATH:
             json.dump(new_xpath_content, json_file)
 
     @property
+    def tweet_xpath(self) -> str:
+        '''
+        The xpath identifier for tweets.
+
+        Returns:
+            str: xpath identifier.
+        '''
+        return self._read_json()['tweet_xpath']
+
+    @property
     def username_xpath(self) -> str:
         '''
         The xpath identifier for usernames.
@@ -63,14 +75,25 @@ class TwitterXPATH:
         return self._read_json()['username_xpath']
 
     @property
-    def tweet_xpath(self) -> str:
+    def content_xpath(self) -> str:
         '''
-        The xpath identifier for tweets
+        The xpath identifier for contents.
 
         Returns:
-            str: xpath identifier
+            str: xpath identifier.
         '''
-        return self._read_json()['tweet_xpath']
+        return self._read_json()['content_xpath']
+
+    @tweet_xpath.setter
+    def tweet_xpath(self, new_xpath:str) -> None:
+        '''
+        Modify the tweet_xpath.
+
+        Args:
+            new_xpath (str): new tweet xpath.
+        '''
+        self.xpath_dict['tweet_xpath'] = new_xpath
+        self._write_json(self.xpath_dict)
 
     @username_xpath.setter
     def username_xpath(self, new_xpath:str) -> None:
@@ -83,13 +106,13 @@ class TwitterXPATH:
         self.xpath_dict['username_xpath'] = new_xpath
         self._write_json(self.xpath_dict)
 
-    @tweet_xpath.setter
-    def tweet_xpath(self, new_xpath:str) -> None:
+    @content_xpath.setter
+    def content_xpath(self, new_xpath:str) -> None:
         '''
-        Modify the tweet_xpath.
+        Modify the content_xpath.
 
         Args:
-            new_xpath (str): new tweet xpath.
+            new_xpath (str): new content xpath.
         '''
-        self.xpath_dict['tweet_xpath'] = new_xpath
+        self.xpath_dict['content_xpath'] = new_xpath
         self._write_json(self.xpath_dict)

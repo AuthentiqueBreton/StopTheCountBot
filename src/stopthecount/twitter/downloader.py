@@ -31,7 +31,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 
 from stopthecount.twitter.xpath_loader import TwitterXPATH
-from stopthecount.twitter.tweet_object import Tweet
 
 LOGGER = logging.getLogger(__name__)
 CHROME = appdirs.user_data_dir(appname='Chrome', appauthor='Google')
@@ -70,29 +69,26 @@ class Downloader:
         wait = WebDriverWait(driver, 10)
         last_height = driver.execute_script('return document.body.scrollHeight')
 
-        elements = []
+        html_code_list = []
         while True:
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
             wait.until(ec.presence_of_all_elements_located((By.XPATH, xpath.tweet_xpath)))
             time.sleep(2)
 
-            new_elements = driver.find_elements(By.XPATH, xpath.tweet_xpath)
-            for new_element in new_elements:
-                if new_element.text not in elements:
-                    elements.append(new_element.text)
+            elements = driver.find_elements(By.XPATH, xpath.tweet_xpath)
+            for element in elements:
+                html_code = element.get_attribute('innerHTML')
+                if html_code not in html_code_list:
+                    html_code_list.append(html_code)
 
             new_height = driver.execute_script('return document.body.scrollHeight')
             if new_height == last_height:
                 break
             last_height = new_height
-        
-        tweet_list = []
-        for tweet_str in elements:
-            tweet_list.append(Tweet(tweet_str))
 
         driver.quit()
 
-        return tweet_list
+        return html_code_list
 
     def get_proposals_from_username(self):
         '''
