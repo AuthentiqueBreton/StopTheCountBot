@@ -1,0 +1,4 @@
+ipykernel
+appdirs
+selenium
+lxml
