@@ -2,3 +2,4 @@ ipykernel
 appdirs
 selenium
 lxml
+xdg-base-dirs

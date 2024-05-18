@@ -22,7 +22,6 @@ Example:
 import logging
 
 from lxml import etree
-# pylint: disable=I1101
 
 from stopthecount.twitter.downloader import Downloader
 from stopthecount.twitter.xpath_loader import TwitterXPATH
@@ -40,7 +39,9 @@ def regenerate_xpath(tweet_div_id:str) -> None:
     xpath = TwitterXPATH()
     xpath.tweet_xpath = f"//div[@class='{tweet_div_id}']"
 
-    tweet_code = Downloader(url=TWEET_URL).content[0]
+    tweet_code_list = Downloader(url=TWEET_URL).content
+    tweet_code = tweet_code_list[_find_model_idx(tweet_code_list)]
+
     xpath.username_xpath = _xpath_explorer(tweet_code, '@StopTheCountBot')
     xpath.content_xpath = _xpath_explorer(tweet_code, 'Typical answer model')
 
@@ -81,3 +82,18 @@ def _xpath_explorer(tweet_code:str, target:str) -> str:
     final_path = '/'.join(path_parts).replace('html/body', '/')
 
     return f"string({final_path})"
+
+def _find_model_idx(tweet_code_list:list) -> int:
+    '''
+    Allow to retrieve the tweet model HTML code.
+
+    Args:
+        tweet_code_list (list): All tweet HTML codes.
+
+    Returns:
+        int: Index of the tweet model code.
+    '''
+    for idx, tweet_code in enumerate(tweet_code_list):
+        if tweet_code.find('Typical') != -1:
+            return idx
+    return -1
