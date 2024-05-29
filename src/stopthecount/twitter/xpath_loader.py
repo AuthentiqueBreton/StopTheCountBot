@@ -2,22 +2,6 @@
 
 '''
 Module for managing and updating XPaths (div names) related to Twitter elements.
-
-Handles loading, updating, and retrieving XPaths for usernames, tweets, and content
-stored in a JSON file ('xpath.json') located in the XDG cache directory.
-
-Usage:
-    1. Instantiate the TwitterXPATH class to manage Twitter XPaths.
-    2. Use properties to read, update, and retrieve specific XPaths.
-
-Example:
-    xpath_manager = TwitterXPATH()
-    tweet_xpath = xpath_manager.tweet_xpath
-    username_xpath = xpath_manager.username_xpath
-    content_xpath = xpath_manager.content_xpath
-    xpath_manager.tweet_xpath = '//div[@class="tweet_div-id"]'
-    xpath_manager.username_xpath = '//div[@class="username_div-id"]'
-    xpath_manager.content_xpath = '//div[@class="content_div-id"]'
 '''
 
 import logging

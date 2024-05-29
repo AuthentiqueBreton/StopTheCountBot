@@ -3,3 +3,4 @@ appdirs
 selenium
 lxml
 xdg-base-dirs
+openai

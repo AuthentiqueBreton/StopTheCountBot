@@ -2,32 +2,17 @@
 
 '''
 Module for regenerating xpaths based on HTML ID changes for tweet replies.
-
-This module provides a function to regenerate xpaths for tweet elements in case of changes
-in HTML IDs. It uses the lxml library for HTML parsing and includes a private function to
-explore and retrieve the xpath of a specific tweet element based on its text content.
-
-Requires:
-    - lxml: https://pypi.org/project/lxml/
-
-Usage:
-    1. Call the regenerate_xpath function with the div ID of a tweet reply to update xpaths.
-    2. The function fetches the HTML code of a sample tweet and updates xpaths accordingly.
-    3. Use the regenerated xpaths to retrieve tweet elements.
-
-Example:
-    regenerate_xpath('tweet_reply_div_id')
 '''
 
 import logging
 
 from lxml import etree
 
-from stopthecount.twitter.downloader import Downloader
+from stopthecount.twitter.download import download_html_code
 from stopthecount.twitter.xpath_loader import TwitterXPATH
 
 LOGGER = logging.getLogger(__name__)
-TWEET_URL = "https://twitter.com/StopTheCountBot/status/1731861672199909757"
+TWEET_URL = 'https://x.com/StopTheCountBot/status/1731861672199909757'
 
 def regenerate_xpath(tweet_div_id:str) -> None:
     '''
@@ -39,7 +24,7 @@ def regenerate_xpath(tweet_div_id:str) -> None:
     xpath = TwitterXPATH()
     xpath.tweet_xpath = f"//div[@class='{tweet_div_id}']"
 
-    tweet_code_list = Downloader(url=TWEET_URL).content
+    tweet_code_list = download_html_code(url=TWEET_URL)
     tweet_code = tweet_code_list[_find_model_idx(tweet_code_list)]
 
     xpath.username_xpath = _xpath_explorer(tweet_code, '@StopTheCountBot')
@@ -81,7 +66,7 @@ def _xpath_explorer(tweet_code:str, target:str) -> str:
     path_parts.reverse()
     final_path = '/'.join(path_parts).replace('html/body', '/')
 
-    return f"string({final_path})"
+    return final_path
 
 def _find_model_idx(tweet_code_list:list) -> int:
     '''
